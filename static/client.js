@@ -72,10 +72,46 @@ socket.on("launch", function(data) {
 });
 
 socket.on("PlayerFound", function(data) {
-	alert("Player " + data.name + " would like to play.");
+	var r = confirm("Player " + data.name + " would like to play.");
+	socket.emit("PlayGame", {play: r});
 });
 
 socket.on("PlayerNotFound", function(data) {
 	alert("No player found. Searching...");
-})
+});
+
+socket.on("GameStart", function(data) {
+	alert("Game started");
+	// generate an initial angle between -60 degrees and +60 degrees:
+	var initAngle = -60 + 120*Math.random();
+	 
+	// randomly choose the initial direction of the ball:
+	var initDirection = Math.random() < 0.5 ? -1 : 1;
+	 
+	// show the game canvas:
+	document.getElementById("gameContainer").style.display = "block";
+	 
+	// initialize the game canvas:
+	pong.init();
+	 
+	// move the ball to the center:
+	pong.resetBall();
+	 
+	// set the ball into motion:
+	pong.launch(initAngle, initDirection);
+	 
+	// tell the server about the ball's initial angle and direction.  For example:
+	socket.emit("launch", {
+		angle: initAngle,
+		direction: initDirection
+	});
+});
+
+socket.on("PlayerDoesNotWantToPlay", function(data) {
+	alert(data.name + "does not want to play.");
+});
+
+socket.on("CheckOpponent", function(data) {
+	alert("Waiting on Opponent");
+});
 

@@ -73,6 +73,23 @@ io.listen(app).sockets.on("connection", function(socket){
     	}
     });
 
+    socket.on("PlayGame", function(data){
+    	socket.play = data.play;
+    	if (socket.play && socket.opponent.play)
+    	{
+    		socket.emit("GameStart");
+    		socket.opponent.emit("GameStart");
+    	}
+    	else if (socket.play && !socket.opponent.play)
+    	{
+    		socket.emit("CheckOpponent");
+    	}
+    	else
+    	{
+    		socket.opponent.emit("PlayerDoesNotWantToPlay", {name: socket.name});
+    	}
+    })
+
     // Send a message from the server to the client:
     socket.emit("message", {some:"data"});
 
