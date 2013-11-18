@@ -60,13 +60,22 @@ window.addEventListener("paddlehit-left", function(e){
 	}
 });
 
+window.addEventListener("paddlemove", function(e)
+{
+	socket.emit("PaddleMoved", {position: e.detail.position});
+});
+
+socket.on("PaddleMoved", function(data) {
+	pong.updateOpponentPaddle(data.position);
+});
+
 socket.on("reflect", function(data) {
 	pong.resetball(960, data.position);
 	pong.launch(data.angle, -1);
 });
 
 socket.on("launch", function(data) {
-	
+
 	document.getElementById("gameContainer").style.display = "block";
 	pong.init();
 	pong.resetBall();

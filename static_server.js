@@ -101,6 +101,10 @@ io.listen(app).sockets.on("connection", function(socket){
 		console.log("Ball launched. Angle: %f Direction: %f", data.angle, data.direction);
 		socket.opponent.emit("launch", data);
 	});
+
+	socket.on("PaddleMoved", function(data){
+		socket.opponent.emit("PaddleMoved", data);
+	});
 });
 
 
