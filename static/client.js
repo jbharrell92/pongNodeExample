@@ -1,7 +1,8 @@
 //TODO
 
+var socket = io.connect(window.location.origin);
+
 function start(event) {
-	var socket = io.connect(window.location.origin);
 	// generate an initial angle between -60 degrees and +60 degrees:
 	var initAngle = -60 + 120*Math.random();
 	 
@@ -30,5 +31,36 @@ function start(event) {
 document.addEventListener("DOMContentLoaded", function() {
 	document.getElementById("startGame").addEventListener("click", start, false);
 }, false);
+
+window.addEventListener("paddlehit-left", function(e){
+	// e.detail.hit will be true if the client hit the ball with his/her paddle.
+	if (e.detail.hit) {
+		console.log("HIT PADDLE.  New angle: %f", e.detail.angle); // log a message to the console
+ 
+		// Tell our opponent via Socket.IO about the ball's new angle and position:
+		socket.emit("reflect", {
+			angle: e.detail.angle,
+			position: e.detail.position
+		});
+ 
+		// Note: The game automatically launches the ball and determines the angle based on the ball's position relative to the paddle position.  
+		// We therefore do not need to call pong.launch() in here (but our opponent will, as shown below).
+	}else{
+		console.log("MISSED PADDLE");
+ 
+		// in here, we will update the score, check for victory condition, launch a new ball (perhaps after a timeout), etc.
+	}
+});
+
+socket.on("reflect", function(data) {
+	pong.resetball(960, data.position);
+	pong.launch(data.angle, -1);
+});
+
+socket.on("launch", function(data) {
+	pong.init()
+	document.getElementById("gameContainer").style.display = "block";
+	pong.launch(data.angle, -data.direction);
+})
 
 

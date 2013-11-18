@@ -55,4 +55,16 @@ io.listen(app).sockets.on("connection", function(socket){
 
     // Send a message from the server to the client:
     socket.emit("message", {some:"data"});
+
+    // Listen for the "reflect" message from the server
+	socket.on("reflect", function(data){
+		socket.opponent.emit("reflect", data);
+	});
+
+	socket.on("launch", function(data){
+		console.log("Ball launched. Angle: %f Direction: %f", data.angle, data.direction);
+		socket.opponent.emit("launch", data);
+	});
 });
+
+
