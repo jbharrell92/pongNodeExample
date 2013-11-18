@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <head>
 <title>Play Pong!</title>
-<script src="/socket.io/socket.io.js"></script>
-<script src="pong-game.js"></script>
-<script src="client.js"></script>
 <style type="text/css">
 body{
-	width: 760px; /* how wide to make your web page */
+	width: 980px; /* how wide to make your web page */
 	background-color: teal; /* what color to make the background */
 	margin: 0 auto;
 	padding: 0;
@@ -39,5 +36,10 @@ div#main{
 	<div id="game"></div>
 </div>
 
+<button id="startGame">Start Game</button>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="./pong-game.js"></script>
+<script src="./client.js"></script>
 </div></body>
 </html>

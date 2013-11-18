@@ -54,5 +54,5 @@ io.listen(app).sockets.on("connection", function(socket){
     });
 
     // Send a message from the server to the client:
-    socket.emit("message", {some:"data});
+    socket.emit("message", {some:"data"});
 });
