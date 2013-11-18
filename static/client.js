@@ -28,8 +28,16 @@ function start(event) {
 	});
 }
 
+function matchMake(event) {
+	socket.emit("lookForPlayer", {
+		name: document.getElementById("playerName").value
+	});
+	console.log("Looking for player");
+}
+
 document.addEventListener("DOMContentLoaded", function() {
 	document.getElementById("startGame").addEventListener("click", start, false);
+	document.getElementById("lookForPlayer").addEventListener("click", matchMake, false);
 }, false);
 
 window.addEventListener("paddlehit-left", function(e){
@@ -61,6 +69,13 @@ socket.on("launch", function(data) {
 	pong.init()
 	document.getElementById("gameContainer").style.display = "block";
 	pong.launch(data.angle, -data.direction);
-})
+});
 
+socket.on("PlayerFound", function(data) {
+	alert("Player " + data.name + " would like to play.");
+});
+
+socket.on("PlayerNotFound", function(data) {
+	alert("No player found. Searching...");
+})
 

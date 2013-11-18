@@ -44,13 +44,33 @@ var app = http.createServer(function(req, resp){
 	}
    });
 });
+var arrayOfPlayers = [];
 app.listen(3456);
 io.listen(app).sockets.on("connection", function(socket){
     // This closure runs when a new Socket.IO connection is established
 
-    // Listen for client messaging server:
-    socket.on("message", function(content){
-	// do stuff, yo
+    socket.on("lookForPlayer", function(data){
+    	socket.name = data.name;
+    	socket.opponent = null;
+    	console.log("Server received lookForPlayer request");
+    	var socketIndex = arrayOfPlayers.indexOf(socket);
+    	if( socketIndex == -1 ) {
+    		arrayOfPlayers.push(socket);
+    		console.log("Pushing player onto array.");
+    	}
+    	for(var i = 0; i < arrayOfPlayers.length; i++) {
+    		if(arrayOfPlayers[i].opponent == null && arrayOfPlayers[i] != socket) {
+    			console.log("Found player " + arrayOfPlayers[i].name + " for " + socket.name);
+    			socket.opponent = arrayOfPlayers[i];
+    			socket.opponent.opponent = socket;
+    		}
+    	}
+    	if(socket.opponent != null){
+    		socket.emit("PlayerFound", {name: socket.opponent.name});
+    		socket.opponent.emit("PlayerFound", {name: socket.name});
+    	} else {
+    		socket.emit("PlayerNotFound");
+    	}
     });
 
     // Send a message from the server to the client:
