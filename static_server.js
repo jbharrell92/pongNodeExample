@@ -78,7 +78,6 @@ io.listen(app).sockets.on("connection", function(socket){
     	if (socket.play && socket.opponent.play)
     	{
     		socket.emit("GameStart");
-    		socket.opponent.emit("GameStart");
     	}
     	else if (socket.play && !socket.opponent.play)
     	{

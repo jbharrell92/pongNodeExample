@@ -66,8 +66,10 @@ socket.on("reflect", function(data) {
 });
 
 socket.on("launch", function(data) {
-	pong.init()
+	
 	document.getElementById("gameContainer").style.display = "block";
+	pong.init();
+	pong.resetBall();
 	pong.launch(data.angle, -data.direction);
 });
 
@@ -81,7 +83,6 @@ socket.on("PlayerNotFound", function(data) {
 });
 
 socket.on("GameStart", function(data) {
-	alert("Game started");
 	// generate an initial angle between -60 degrees and +60 degrees:
 	var initAngle = -60 + 120*Math.random();
 	 
