@@ -3,6 +3,6 @@
   "version": "0.5.1",
   "dependencies": {
     "mime": "~1.2.11",
-    "socket.io": "~0.9.16",
-  },
+    "socket.io": "~0.9.16"
+  }
 }
