@@ -28,6 +28,9 @@ div#main{
 	height: 480px;
 	border: 1px solid black;
 }
+#gameMessage{
+	font-size: 30px;
+}
 </style>
 </head>
 <body><div id="main">
@@ -35,10 +38,12 @@ div#main{
 <div id="gameContainer" style ="display:none;">
 	<div id="game"></div>
 </div>
-
+<div id="gameMessage"></div><br />
+<div id="matchMaking">
 Name: <input type="text" id="playerName"><button id="lookForPlayer">Find Match</button><br />
+</div>
 
-<button id="startGame">Start Game</button>
+<button id="launchBall" style= "display:none;">Launch Ball</button> <button id="newGame" style= "display:none;">New Game</button>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="./pong-game.js"></script>

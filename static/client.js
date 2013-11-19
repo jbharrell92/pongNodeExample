@@ -20,6 +20,8 @@ function start(event) {
 		angle: initAngle,
 		direction: initDirection
 	});
+
+	document.getElementById("launchBall").style.display = "none";
 }
 
 function matchMake(event) {
@@ -30,7 +32,7 @@ function matchMake(event) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-	document.getElementById("startGame").addEventListener("click", start, false);
+	document.getElementById("launchBall").addEventListener("click", start, false);
 	document.getElementById("lookForPlayer").addEventListener("click", matchMake, false);
 }, false);
 
@@ -48,6 +50,7 @@ window.addEventListener("paddlehit-left", function(e){
 		// Note: The game automatically launches the ball and determines the angle based on the ball's position relative to the paddle position.  
 		// We therefore do not need to call pong.launch() in here (but our opponent will, as shown below).
 	}else{
+		document.getElementById("launchBall").style.display = "";
 		socket.emit("updateScore")
  
 		// in here, we will update the score, check for victory condition, launch a new ball (perhaps after a timeout), etc.
@@ -77,6 +80,7 @@ socket.on("launch", function(data) {
 
 socket.on("gameStarted", function(data) {
 	document.getElementById("gameContainer").style.display = "block";
+	document.getElementById("matchMaking").style.display = "none";
 	pong.init();
 	pong.resetBall();
 	pong.launch(data.angle, -data.direction);
@@ -100,6 +104,7 @@ socket.on("GameStart", function(data) {
 	 
 	// show the game canvas:
 	document.getElementById("gameContainer").style.display = "block";
+	document.getElementById("matchMaking").style.display = "none";
 	 
 	// initialize the game canvas:
 	pong.init();
@@ -128,4 +133,11 @@ socket.on("CheckOpponent", function(data) {
 socket.on("Score", function(data) {
 	pong.setScore(data);
 });
+
+socket.on("GameOver", function(data) {
+	document.getElementById("gameContainer").style.display = "none";
+	document.getElementById("gameMessage").innerHTML = data.winner + " won the game!";
+	document.getElementById("newGame").style.display = "";
+	document.getElementById("launchBall").style.display = "none";
+})
 

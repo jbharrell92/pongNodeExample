@@ -7,6 +7,8 @@ var http = require('http'),
     fs = require('fs'),
     io = require('socket.io');
 
+var WINS_TO_GAME = 3;
+
 // Make a simple fileserver for all of our static content.
 // Everything underneath <STATIC DIRECTORY NAME> will be served.
 var app = http.createServer(function(req, resp){
@@ -111,8 +113,16 @@ io.listen(app).sockets.on("connection", function(socket){
     socket.on("updateScore", function(data) {
         console.log(socket.opponent.name + " scored!");
         socket.opponent.score = socket.opponent.score + 1;
-        socket.emit("Score", {left: socket.score, right: socket.opponent.score});
-        socket.opponent.emit("Score", {left: socket.opponent.score, right: socket.score});
+        if(socket.opponent.score >= WINS_TO_GAME) {
+            console.log(socket.opponent.name + " won the game!");
+            socket.emit("GameOver", {winner: socket.opponent.name});
+            socket.opponent.emit("GameOver", {winner: socket.opponent.name});
+            socket.score = 0;
+            socket.opponent.score = 0;
+        } else {
+            socket.emit("Score", {left: socket.score, right: socket.opponent.score});
+            socket.opponent.emit("Score", {left: socket.opponent.score, right: socket.score});           
+        }
     });
 
     socket.on("gameStarted", function(data) {
