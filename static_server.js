@@ -77,6 +77,8 @@ io.listen(app).sockets.on("connection", function(socket){
     	socket.play = data.play;
     	if (socket.play && socket.opponent.play)
     	{
+            socket.score = 0;
+            socket.opponent.score = 0;
     		socket.emit("GameStart");
     	}
     	else if (socket.play && !socket.opponent.play)
@@ -94,7 +96,7 @@ io.listen(app).sockets.on("connection", function(socket){
 
     // Listen for the "reflect" message from the server
 	socket.on("reflect", function(data){
-		socket.opponent.emit("reflect", data);
+		socket.opponent.emit("OppReflect", data);
 	});
 
 	socket.on("launch", function(data){
@@ -105,6 +107,17 @@ io.listen(app).sockets.on("connection", function(socket){
 	socket.on("PaddleMoved", function(data){
 		socket.opponent.emit("PaddleMoved", data);
 	});
+
+    socket.on("updateScore", function(data) {
+        console.log(socket.opponent.name + " scored!");
+        socket.opponent.score = socket.opponent.score + 1;
+        socket.emit("Score", {left: socket.score, right: socket.opponent.score});
+        socket.opponent.emit("Score", {left: socket.opponent.score, right: socket.score});
+    });
+
+    socket.on("gameStarted", function(data) {
+        socket.opponent.emit("gameStarted", data);
+    });
 });
 
 

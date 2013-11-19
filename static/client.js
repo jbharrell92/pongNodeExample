@@ -8,13 +8,7 @@ function start(event) {
 	 
 	// randomly choose the initial direction of the ball:
 	var initDirection = Math.random() < 0.5 ? -1 : 1;
-	 
-	// show the game canvas:
-	document.getElementById("gameContainer").style.display = "block";
-	 
-	// initialize the game canvas:
-	pong.init();
-	 
+
 	// move the ball to the center:
 	pong.resetBall();
 	 
@@ -54,7 +48,7 @@ window.addEventListener("paddlehit-left", function(e){
 		// Note: The game automatically launches the ball and determines the angle based on the ball's position relative to the paddle position.  
 		// We therefore do not need to call pong.launch() in here (but our opponent will, as shown below).
 	}else{
-		console.log("MISSED PADDLE");
+		socket.emit("updateScore")
  
 		// in here, we will update the score, check for victory condition, launch a new ball (perhaps after a timeout), etc.
 	}
@@ -69,13 +63,19 @@ socket.on("PaddleMoved", function(data) {
 	pong.updateOpponentPaddle(data.position);
 });
 
-socket.on("reflect", function(data) {
-	pong.resetball(960, data.position);
+socket.on("OppReflect", function(data) {
+	pong.resetBall(960, data.position);
 	pong.launch(data.angle, -1);
 });
 
 socket.on("launch", function(data) {
 
+	document.getElementById("gameContainer").style.display = "block";
+	pong.resetBall();
+	pong.launch(data.angle, -data.direction);
+});
+
+socket.on("gameStarted", function(data) {
 	document.getElementById("gameContainer").style.display = "block";
 	pong.init();
 	pong.resetBall();
@@ -111,17 +111,21 @@ socket.on("GameStart", function(data) {
 	pong.launch(initAngle, initDirection);
 	 
 	// tell the server about the ball's initial angle and direction.  For example:
-	socket.emit("launch", {
+	socket.emit("gameStarted", {
 		angle: initAngle,
 		direction: initDirection
 	});
 });
 
 socket.on("PlayerDoesNotWantToPlay", function(data) {
-	alert(data.name + "does not want to play.");
+	alert(data.name + " does not want to play.");
 });
 
 socket.on("CheckOpponent", function(data) {
 	alert("Waiting on Opponent");
+});
+
+socket.on("Score", function(data) {
+	pong.setScore(data);
 });
 
