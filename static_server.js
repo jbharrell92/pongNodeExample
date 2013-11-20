@@ -47,7 +47,8 @@ var app = http.createServer(function(req, resp){
    });
 });
 var arrayOfPlayers = [];
-app.listen(3456);
+var port = process.env.PORT || 3456;
+app.listen(port);
 io.listen(app).sockets.on("connection", function(socket){
     // This closure runs when a new Socket.IO connection is established
 
