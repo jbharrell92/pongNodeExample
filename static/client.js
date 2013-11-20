@@ -204,4 +204,18 @@ socket.on("disconnected", function(data) {
 	document.getElementById("hideWhilePlaying").style.display = "";
 
 });
+Ext.DomHelper.useDom = true; // prevent XSS
 
+socket.on("someonesaid", function(content){
+	// This callback runs when the server sends us a "someonesaid" event
+	console.log("Hello message");
+	var li = document.createElement("li");
+	li.innerHTML = content.name + ": " + encodeURIComponent(content.message);
+	document.getElementById("messages").appendChild(li);
+});
+Ext.onReady(function(){
+	Ext.fly("send").on("click", function(){
+		// When the "send" button is clicked, emit a "message" event to the server containing a chat message
+		socket.emit("message", {message: Ext.fly("comment").getValue()});
+	});
+});

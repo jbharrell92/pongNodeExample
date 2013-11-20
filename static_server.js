@@ -9,6 +9,7 @@ var http = require('http'),
 
 var WINS_TO_GAME = 5;
 
+
 // Make a simple fileserver for all of our static content.
 // Everything underneath <STATIC DIRECTORY NAME> will be served.
 var app = http.createServer(function(req, resp){
@@ -50,8 +51,17 @@ var app = http.createServer(function(req, resp){
 var arrayOfPlayers = [];
 var port = process.env.PORT || 3456;
 app.listen(port);
+
+
 io.listen(app).sockets.on("connection", function(socket){
 	// This closure runs when a new Socket.IO connection is established
+
+	socket.on("message", function(content){
+		// This callback runs when the client sends us a "message" event
+		console.log("message: "+content); // log it to the Node.JS output
+		socket.broadcast.emit("someonesaid", {message: content.message, name: socket.name}); // broadcast the message to other users
+		socket.emit("someonesaid", {message: content.message, name: socket.name});
+	});
 
 	socket.on("lookForPlayer", function(data){
 		for(var i = 0; i < arrayOfPlayers.length; i++) {
@@ -155,11 +165,7 @@ io.listen(app).sockets.on("connection", function(socket){
 		}      
 	});
 
-	socket.on("disconnect", function(data) {
-		socket.opponent.emit("disconnected", {name: socket.name});
-		socket.opponent.opponent = null;
-		socket.opponent = null;
-	});
+
 });
 
 

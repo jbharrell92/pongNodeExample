@@ -41,6 +41,12 @@
 	#matchMaking {
 		text-align: center;
 	}
+	#chat {
+		text-align: center;
+	}
+	#chat.messages {
+		text-align: center;
+	}
 
 	</style>
 </head>
@@ -67,10 +73,21 @@
 		</div>
 
 		<button id="launchBall" style= "display:none;">Launch Ball</button> <button id="newGame" style= "display:none;">New Game</button>
-
+		<div id="chat">
+			<p>
+				<textarea id="comment"></textarea>
+				<button id="send">Send Comment</button>
+			</p>
+			<ul id="messages">
+			</ul>			 
+		</div>
+		<!-- Include the Socket.IO and Ext libraries -->
+		<script src="//cdn.sencha.io/ext-4.1.1-gpl/ext-all-dev.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="./pong-game.js"></script>
 		<script src="./client.js"></script>
 	</div>
+
+
 </body>
 </html>
