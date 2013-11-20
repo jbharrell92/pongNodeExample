@@ -1,5 +1,3 @@
-//TODO
-
 var socket = io.connect(window.location.origin);
 
 function newGame(event) {
