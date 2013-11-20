@@ -12,9 +12,11 @@ function newGame(event) {
 }
 
 function joinLobby(event) {
-	document.getElementById("playerList").style.display = "";
-	document.getElementById("scores").style.display ="";
-	socket.emit("joinedLobby", {name: document.getElementById("playerName").value});
+	if(document.getElementById("playerName").value.length <= 50) {
+		document.getElementById("playerList").style.display = "";
+		document.getElementById("scores").style.display ="";
+		socket.emit("joinedLobby", {name: document.getElementById("playerName").value});
+	}
 }
 
 function start(event) {
@@ -183,7 +185,7 @@ socket.on("PlayerBusy", function(data) {
 socket.on("addToScoreboard", function(data) {
 	var ul = document.getElementById("scoreboard");
 	var li = document.createElement("li");
-	li.innerHTML = "" + data.name + ": " + " wins: " + data.wins +" losses: " + data.losses;
+	li.innerHTML = "" + encodeURIComponent(data.name) + ": " + " wins: " + data.wins +" losses: " + data.losses;
 	li.id = data.id;
 	ul.appendChild(li);
 });
@@ -191,7 +193,7 @@ socket.on("addToScoreboard", function(data) {
 socket.on("updateScoreboard", function(data) {
 	var li1 = document.getElementById(data.p1id);
 	var li2 = document.getElementById(data.p2id);
-	li1.innerHTML = "" + data.p1Name + ": " + " wins: " + data.p1wins +" losses: " + data.p1losses;
-	li2.innerHTML = "" + data.p2Name + ": " + " wins: " + data.p2wins +" losses: " + data.p2losses;
+	li1.innerHTML = "" + encodeURIComponent(data.p1Name) + ": " + " wins: " + data.p1wins +" losses: " + data.p1losses;
+	li2.innerHTML = "" + encodeURIComponent(data.p2Name) + ": " + " wins: " + data.p2wins +" losses: " + data.p2losses;
 });
 
