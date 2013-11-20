@@ -7,7 +7,7 @@ var http = require('http'),
     fs = require('fs'),
     io = require('socket.io');
 
-var WINS_TO_GAME = 3;
+var WINS_TO_GAME = 5;
 
 // Make a simple fileserver for all of our static content.
 // Everything underneath <STATIC DIRECTORY NAME> will be served.

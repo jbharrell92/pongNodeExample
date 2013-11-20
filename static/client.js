@@ -2,6 +2,10 @@
 
 var socket = io.connect(window.location.origin);
 
+function newGame(event) {
+
+}
+
 function start(event) {
 	// generate an initial angle between -60 degrees and +60 degrees:
 	var initAngle = -60 + 120*Math.random();
@@ -34,6 +38,7 @@ function matchMake(event) {
 document.addEventListener("DOMContentLoaded", function() {
 	document.getElementById("launchBall").addEventListener("click", start, false);
 	document.getElementById("lookForPlayer").addEventListener("click", matchMake, false);
+	document.getElementById("newGame").addEventListener("click", newGame, false);
 }, false);
 
 window.addEventListener("paddlehit-left", function(e){
