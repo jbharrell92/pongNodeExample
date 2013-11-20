@@ -72,7 +72,7 @@ window.addEventListener("paddlehit-left", function(e){
 		// We therefore do not need to call pong.launch() in here (but our opponent will, as shown below).
 	}else{
 		document.getElementById("launchBall").style.display = "";
-		socket.emit("updateScore")
+		socket.emit("updateScore");
  
 		// in here, we will update the score, check for victory condition, launch a new ball (perhaps after a timeout), etc.
 	}
@@ -193,5 +193,15 @@ socket.on("updateScoreboard", function(data) {
 	var li2 = document.getElementById(data.p2id);
 	li1.innerHTML = "" + encodeURIComponent(data.p1Name) + ": " + " wins: " + data.p1wins +" losses: " + data.p1losses;
 	li2.innerHTML = "" + encodeURIComponent(data.p2Name) + ": " + " wins: " + data.p2wins +" losses: " + data.p2losses;
+});
+
+socket.on("disconnected", function(data) {
+	alert("Your opponent disconnected! :(");
+	document.getElementById("gameContainer").style.display = "none";
+	document.getElementById("gameMessage").style.display = "none";
+	document.getElementById("newGame").style.display = "none";
+	document.getElementById("launchBall").style.display = "none";
+	document.getElementById("hideWhilePlaying").style.display = "";
+
 });
 
