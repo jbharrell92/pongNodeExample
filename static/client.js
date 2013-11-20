@@ -10,10 +10,14 @@ function newGame(event) {
 }
 
 function joinLobby(event) {
-	if(document.getElementById("playerName").value.length <= 50) {
+	if(document.getElementById("playerName").value.length <= 50 && document.getElementById("playerName").value.match(/^[a-zA-Z0-9]+$/)) {
 		document.getElementById("playerList").style.display = "";
 		document.getElementById("scores").style.display ="";
 		socket.emit("joinedLobby", {name: document.getElementById("playerName").value});
+	}
+	else
+	{
+		alert ("Invalid Username");
 	}
 }
 
