@@ -47,12 +47,23 @@
 <body>
 	<div id="main">
 		<h1> PONGO </h1> 
-		<div id="gameContainer" style ="display:none;">
+		<div id="hideWhilePlaying">
+			<div id="playerList" style="display:none;">
+				<select id="players"></select><button id="challenge">Challenge!</button>
+			</div>
+			<div id="scores" style="display:none;">
+				<h4>Scoreboard</h4>
+				<ul id="scoreboard">
+
+				</ul>
+			</div>
+		</div>
+		<div id="gameContainer" style="display:none;">
 			<div id="game"></div>
 		</div>
 		<div id="gameMessage"></div><br />
 		<div id="matchMaking">
-			Name: <input type="text" id="playerName"><button id="lookForPlayer">Find Match</button><br />
+			Name: <input type="text" id="playerName"><button id="joinLobby">Join Lobby</button><button id="lookForPlayer" style="display:none;">Find Match</button><br />
 		</div>
 
 		<button id="launchBall" style= "display:none;">Launch Ball</button> <button id="newGame" style= "display:none;">New Game</button>

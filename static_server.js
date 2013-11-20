@@ -53,49 +53,37 @@ io.listen(app).sockets.on("connection", function(socket){
     // This closure runs when a new Socket.IO connection is established
 
     socket.on("lookForPlayer", function(data){
-    	socket.name = data.name;
-    	socket.opponent = null;
-    	console.log("Server received lookForPlayer request");
-    	var socketIndex = arrayOfPlayers.indexOf(socket);
-    	if( socketIndex == -1 ) {
-    		arrayOfPlayers.push(socket);
-    		console.log("Pushing player onto array.");
-    	}
-    	for(var i = 0; i < arrayOfPlayers.length; i++) {
-    		if(arrayOfPlayers[i].opponent == null && arrayOfPlayers[i] != socket) {
-    			console.log("Found player " + arrayOfPlayers[i].name + " for " + socket.name);
-    			socket.opponent = arrayOfPlayers[i];
-    			socket.opponent.opponent = socket;
-    		}
-    	}
-    	if(socket.opponent != null){
-    		socket.emit("PlayerFound", {name: socket.opponent.name});
-    		socket.opponent.emit("PlayerFound", {name: socket.name});
-    	} else {
-    		socket.emit("PlayerNotFound");
-    	}
+        for(var i = 0; i < arrayOfPlayers.length; i++) {
+            if(arrayOfPlayers[i].id == data.opponent)
+                socket.opponent = arrayOfPlayers[i];
+        }
+        if(socket.opponent.opponent != null) {
+            socket.emit("PlayerBusy");
+            socket.opponent = null;
+        } else {
+            socket.opponent.emit("challenged", {name: socket.name, challenger: socket.id, challenged: socket.opponent.id});
+        }
+    	
     });
 
     socket.on("PlayGame", function(data){
-    	socket.play = data.play;
-    	if (socket.play && socket.opponent.play)
-    	{
-            socket.score = 0;
-            socket.opponent.score = 0;
-    		socket.emit("GameStart");
-    	}
-    	else if (socket.play && !socket.opponent.play)
-    	{
-    		socket.emit("CheckOpponent");
-    	}
-    	else
-    	{
-    		socket.opponent.emit("PlayerDoesNotWantToPlay", {name: socket.name});
-    	}
-    })
+        for(var i = 0; i < arrayOfPlayers.length; i++) {
+            if(arrayOfPlayers[i].id == data.challenger)
+                socket.opponent = arrayOfPlayers[i];
+        }
+        socket.score = 0;
+        socket.opponent.score = 0;
+        socket.opponent.emit("GameStart");
+    });
 
-    // Send a message from the server to the client:
-    socket.emit("message", {some:"data"});
+    socket.on("declined", function(data) {
+        socket.opponent = null;
+        for(var i = 0; i < arrayOfPlayers.length; i++) {
+            if(arrayOfPlayers[i].id == data.challenger)
+                arrayOfPlayers[i].emit("challengeDeclined");
+        }
+        data.challenger.opponent = null;
+    });
 
     // Listen for the "reflect" message from the server
 	socket.on("reflect", function(data){
@@ -115,11 +103,19 @@ io.listen(app).sockets.on("connection", function(socket){
         console.log(socket.opponent.name + " scored!");
         socket.opponent.score = socket.opponent.score + 1;
         if(socket.opponent.score >= WINS_TO_GAME) {
+            socket.opponent.wins++; //can you do this?
+            socket.losses++;
             console.log(socket.opponent.name + " won the game!");
             socket.emit("GameOver", {winner: socket.opponent.name});
             socket.opponent.emit("GameOver", {winner: socket.opponent.name});
             socket.score = 0;
             socket.opponent.score = 0;
+            for(var i = 0; i < arrayOfPlayers.length; i++){
+                arrayOfPlayers[i].emit("updateScoreboard", {p1Name: socket.name, p1id: socket.id, 
+                                                            p1wins: socket.wins, p1losses: socket.losses,
+                                                            p2Name: socket.opponent.name, p2id: socket.opponent.id, 
+                                                            p2wins: socket.opponent.wins, p2losses: socket.opponent.losses});
+            }
         } else {
             socket.emit("Score", {left: socket.score, right: socket.opponent.score});
             socket.opponent.emit("Score", {left: socket.opponent.score, right: socket.score});           
@@ -127,7 +123,35 @@ io.listen(app).sockets.on("connection", function(socket){
     });
 
     socket.on("gameStarted", function(data) {
+        console.log(socket.id + " started the game.");
+        console.log("emitting game started to " + socket.opponent.id);
         socket.opponent.emit("gameStarted", data);
+    });
+
+    socket.on("newGame", function(data) {
+        socket.opponent = null;
+    })
+
+    socket.on("joinedLobby", function(data) {
+        socket.name = data.name;
+        socket.opponent = null;
+        socket.wins = 0;
+        socket.losses = 0;
+        console.log("new player joined the lobby.");
+        var socketIndex = arrayOfPlayers.indexOf(socket);
+        if( socketIndex == -1 ) {
+            arrayOfPlayers.push(socket);
+            console.log("Pushing player onto array.");
+        }
+        for(var i = 0; i < arrayOfPlayers.length; i++) {
+            arrayOfPlayers[i].emit("addToScoreboard", {name: socket.name, id: socket.id, wins: socket.wins, losses: socket.losses});
+            if(arrayOfPlayers[i].id != socket.id) {
+                arrayOfPlayers[i].emit("newPlayer", {text: socket.name, value: socket.id});
+                socket.emit("newPlayer", {text: arrayOfPlayers[i].name, value: arrayOfPlayers[i].id});
+                socket.emit("addToScoreboard", {name: arrayOfPlayers[i].name, id: arrayOfPlayers[i].id, wins: arrayOfPlayers[i].wins, losses: arrayOfPlayers[i].losses});
+
+            }
+        }      
     });
 });
 

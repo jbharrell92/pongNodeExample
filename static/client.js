@@ -3,7 +3,18 @@
 var socket = io.connect(window.location.origin);
 
 function newGame(event) {
+	document.getElementById("gameContainer").style.display = "none";
+	document.getElementById("gameMessage").style.display = "none";
+	document.getElementById("newGame").style.display = "none";
+	document.getElementById("launchBall").style.display = "none";
+	document.getElementById("hideWhilePlaying").style.display = "";
+	socket.emit("newGame", {junk: "here"});
+}
 
+function joinLobby(event) {
+	document.getElementById("playerList").style.display = "";
+	document.getElementById("scores").style.display ="";
+	socket.emit("joinedLobby", {name: document.getElementById("playerName").value});
 }
 
 function start(event) {
@@ -29,16 +40,21 @@ function start(event) {
 }
 
 function matchMake(event) {
+	var e = document.getElementById("players");
+	var strUser = e.options[e.selectedIndex].value;
 	socket.emit("lookForPlayer", {
-		name: document.getElementById("playerName").value
+		name: document.getElementById("playerName").value,
+		opponent: strUser
 	});
-	console.log("Looking for player");
+	console.log("matching player");
 }
 
 document.addEventListener("DOMContentLoaded", function() {
 	document.getElementById("launchBall").addEventListener("click", start, false);
 	document.getElementById("lookForPlayer").addEventListener("click", matchMake, false);
 	document.getElementById("newGame").addEventListener("click", newGame, false);
+	document.getElementById("joinLobby").addEventListener("click", joinLobby, false);
+	document.getElementById("challenge").addEventListener("click", matchMake, false);
 }, false);
 
 window.addEventListener("paddlehit-left", function(e){
@@ -77,27 +93,19 @@ socket.on("OppReflect", function(data) {
 });
 
 socket.on("launch", function(data) {
-
 	document.getElementById("gameContainer").style.display = "block";
 	pong.resetBall();
 	pong.launch(data.angle, -data.direction);
 });
 
 socket.on("gameStarted", function(data) {
+	console.log("game started");
 	document.getElementById("gameContainer").style.display = "block";
 	document.getElementById("matchMaking").style.display = "none";
+	document.getElementById("hideWhilePlaying").style.display = "none";
 	pong.init();
 	pong.resetBall();
 	pong.launch(data.angle, -data.direction);
-});
-
-socket.on("PlayerFound", function(data) {
-	var r = confirm("Player " + data.name + " would like to play.");
-	socket.emit("PlayGame", {play: r});
-});
-
-socket.on("PlayerNotFound", function(data) {
-	alert("No player found. Searching...");
 });
 
 socket.on("GameStart", function(data) {
@@ -110,6 +118,7 @@ socket.on("GameStart", function(data) {
 	// show the game canvas:
 	document.getElementById("gameContainer").style.display = "block";
 	document.getElementById("matchMaking").style.display = "none";
+	document.getElementById("hideWhilePlaying").style.display = "none";
 	 
 	// initialize the game canvas:
 	pong.init();
@@ -119,6 +128,8 @@ socket.on("GameStart", function(data) {
 	 
 	// set the ball into motion:
 	pong.launch(initAngle, initDirection);
+
+	console.log("game started");
 	 
 	// tell the server about the ball's initial angle and direction.  For example:
 	socket.emit("gameStarted", {
@@ -131,10 +142,6 @@ socket.on("PlayerDoesNotWantToPlay", function(data) {
 	alert(data.name + " does not want to play.");
 });
 
-socket.on("CheckOpponent", function(data) {
-	alert("Waiting on Opponent");
-});
-
 socket.on("Score", function(data) {
 	pong.setScore(data);
 });
@@ -144,5 +151,47 @@ socket.on("GameOver", function(data) {
 	document.getElementById("gameMessage").innerHTML = data.winner + " won the game!";
 	document.getElementById("newGame").style.display = "";
 	document.getElementById("launchBall").style.display = "none";
-})
+});
+
+socket.on("newPlayer", function(data) {
+	var opt = document.createElement("option");	
+	// Add an Option object to Drop Down/List Box
+	document.getElementById("players").options.add(opt);
+	// Assign text and value to Option object
+	opt.text = data.text;
+	opt.value = data.value;
+});
+
+socket.on("challenged", function(data) {
+	var r = confirm("Player " + data.name + " would like to play.");
+	if(r) {
+		socket.emit("PlayGame", data);
+	} else {
+		socket.emit("declined", data);
+	}
+
+});
+
+socket.on("challengeDeclined", function(data) {
+	alert("Your challenge was declined. :(");
+});
+
+socket.on("PlayerBusy", function(data) {
+	alert("that player is unavailable right now.");
+});
+
+socket.on("addToScoreboard", function(data) {
+	var ul = document.getElementById("scoreboard");
+	var li = document.createElement("li");
+	li.innerHTML = "" + data.name + ": " + " wins: " + data.wins +" losses: " + data.losses;
+	li.id = data.id;
+	ul.appendChild(li);
+});
+
+socket.on("updateScoreboard", function(data) {
+	var li1 = document.getElementById(data.p1id);
+	var li2 = document.getElementById(data.p2id);
+	li1.innerHTML = "" + data.p1Name + ": " + " wins: " + data.p1wins +" losses: " + data.p1losses;
+	li2.innerHTML = "" + data.p2Name + ": " + " wins: " + data.p2wins +" losses: " + data.p2losses;
+});
 
